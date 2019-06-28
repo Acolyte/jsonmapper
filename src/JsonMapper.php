@@ -352,13 +352,29 @@ class JsonMapper
         }
     }
 
-    protected function removeUndefinedAttributes($providedProperties, &$object) {
-        foreach(get_object_vars($object) as $propertyName => $propertyValue) {
-            if(!isset($providedProperties[$propertyName])) {
-                unset($object->{$propertyName});
-            }
-        }
-    }
+	/**
+	 * Removes null attributes from object that were not passed in JSON
+	 * to avoid confusion between those that were actually passed as null,
+	 * and those that weren't at all
+	 *
+	 * @param array  $providedProperties array with json properties
+	 * @param object $object Object to set property on
+	 *
+	 * @return void
+	 */
+	protected function removeUndefinedAttributes($providedProperties, &$object) {
+		foreach(get_object_vars($object) as $propertyName => $propertyValue) {
+			if(!isset($providedProperties[$propertyName])) {
+				unset($object->{$propertyName});
+			} else {
+				if(is_object($object->{$propertyName})) {
+                    // @todo add handling for sub-object attribute(s) mapping
+				} else if (is_array($object->{$propertyName}))  {
+				    // @todo add handling for sub-array attribute(s) mapping
+                }
+			}
+		}
+	}
 
     /**
      * Map an array
