@@ -81,6 +81,14 @@ class JsonMapper
      */
     public $bIgnoreVisibility = false;
 
+	/**
+	 * Removes attributes that were not passed in JSON
+     * to avoid confusion between them and null values
+	 *
+	 * @var boolean
+	 */
+	public $bRemoveUndefinedAttributes = false;
+
     /**
      * Override class names that JsonMapper uses to create objects.
      * Useful when your setter methods accept abstract classes or interfaces.
@@ -291,6 +299,9 @@ class JsonMapper
             $this->checkMissingData($providedProperties, $rc);
         }
 
+        if($this->bRemoveUndefinedAttributes) {
+            $this->removeUndefinedAttributes($providedProperties, $object);
+        }
         return $object;
     }
 
@@ -337,6 +348,14 @@ class JsonMapper
                     . $rc->getName()
                     . ' is missing in JSON data'
                 );
+            }
+        }
+    }
+
+    protected function removeUndefinedAttributes($providedProperties, &$object) {
+        foreach(get_object_vars($object) as $propertyName => $propertyValue) {
+            if(!isset($providedProperties[$propertyName])) {
+                unset($object->{$propertyName});
             }
         }
     }
